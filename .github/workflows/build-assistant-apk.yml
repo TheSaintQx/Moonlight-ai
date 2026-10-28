@@ -19,26 +19,18 @@ jobs:
           java-version: 17
           cache: gradle
 
-      - name: Install SDK components
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          accept-android-sdk-licenses: true
+          log-accepted-android-sdk-licenses: true
+          packages: 'platform-tools;34.0.0 platforms;android-34 build-tools;34.0.0'
+
+      - name: Install NDK
         run: |
           SDK="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
-          if [ ! -d "$SDK" ]; then
-            echo "Android SDK not found at $SDK" >&2
-            exit 1
-          fi
-          echo "ANDROID_HOME=$SDK" >> "$GITHUB_ENV"
-          echo "ANDROID_SDK_ROOT=$SDK" >> "$GITHUB_ENV"
-          echo "sdk.dir=$SDK" > local.properties
           SM=$(find "$SDK/cmdline-tools" -name sdkmanager -type f 2>/dev/null | sort | tail -1)
-          if [ -z "$SM" ]; then
-            echo "sdkmanager not found under $SDK/cmdline-tools" >&2
-            exit 1
-          fi
           yes | "$SM" --licenses >/dev/null 2>&1 || true
-          # Платформу и build-tools Gradle скачает сам: здесь это самое
-          # надёжное поведение, потому что имена пакетов вида android-37
-          # в новом формате Major.Minor хрупкие.
-          # NDK ставим явно: его версия зафиксирована в app/build.gradle.
           "$SM" --install "ndk;29.0.14206865" >/dev/null 2>&1 || true
           if [ ! -d "$SDK/ndk/29.0.14206865" ]; then
             echo "NDK 29.0.14206865 was not installed" >&2
