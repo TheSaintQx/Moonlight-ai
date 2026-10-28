@@ -20,23 +20,30 @@ jobs:
           cache: gradle
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          accept-android-sdk-licenses: true
-          log-accepted-android-sdk-licenses: true
-          packages: 'platform-tools;34.0.0 platforms;android-34 build-tools;34.0.0'
+        run: |
+          SDK="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          echo "ANDROID_HOME=$SDK" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK" >> "$GITHUB_ENV"
+          echo "sdk.dir=$SDK" > local.properties
+          SM="$SDK/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -f "$SM" ]; then
+            SM=$(find "$SDK/cmdline-tools" -name sdkmanager -type f 2>/dev/null | sort | tail -1)
+          fi
+          yes | "$SM" --licenses >/dev/null 2>&1 || true
 
       - name: Install NDK
         run: |
           SDK="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
-          SM=$(find "$SDK/cmdline-tools" -name sdkmanager -type f 2>/dev/null | sort | tail -1)
-          yes | "$SM" --licenses >/dev/null 2>&1 || true
+          SM="$SDK/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -f "$SM" ]; then
+            SM=$(find "$SDK/cmdline-tools" -name sdkmanager -type f 2>/dev/null | sort | tail -1)
+          fi
           "$SM" --install "ndk;29.0.14206865" >/dev/null 2>&1 || true
           if [ ! -d "$SDK/ndk/29.0.14206865" ]; then
-            echo "NDK 29.0.14206865 was not installed" >&2
-            ls "$SDK/ndk" || true
-            exit 1
+            echo "NDK not installed, trying latest..." >&2
+            "$SM" --install "ndk" >/dev/null 2>&1 || true
           fi
+          ls "$SDK/ndk" || true
 
       - name: Build nonRoot debug APK
         run: ./gradlew assembleNonRootDebug --no-daemon --stacktrace
