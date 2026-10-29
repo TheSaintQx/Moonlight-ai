@@ -13,8 +13,16 @@ jobs:
         with:
           submodules: false
 
-      - name: Update submodules
-        run: git submodule update --init --recursive
+      - name: Ensure moonlight-common-c submodule content
+        run: |
+          SUBMOD_DIR="app/src/main/jni/moonlight-core/moonlight-common-c"
+          if [ ! -d "$SUBMOD_DIR/src" ]; then
+            echo "Submodule empty, cloning directly..."
+            rm -rf "$SUBMOD_DIR"
+            git clone --depth 1 https://github.com/moonlight-stream/moonlight-common-c.git "$SUBMOD_DIR"
+          else
+            echo "Submodule already populated"
+          fi
 
       - uses: actions/setup-java@v5
         with:
