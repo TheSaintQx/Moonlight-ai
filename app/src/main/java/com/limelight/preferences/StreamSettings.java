@@ -29,6 +29,7 @@ import android.view.WindowInsets;
 
 import com.limelight.LimeLog;
 import com.limelight.assistant.AssistantKb;
+import com.limelight.assistant.AssistantMap;
 import com.limelight.PcView;
 import com.limelight.R;
 import com.limelight.binding.video.MediaCodecHelper;
@@ -126,6 +127,7 @@ public class StreamSettings extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         AssistantKb.handleActivityResult(this, requestCode, resultCode, data);
+        AssistantMap.handleActivityResult(this, requestCode, resultCode, data);
     }
 
     public static class SettingsFragment extends PreferenceFragment {

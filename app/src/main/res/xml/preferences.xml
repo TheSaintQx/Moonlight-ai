@@ -333,4 +333,10 @@
         android:title="База знаний (JSON)"
         android:summary="Тап - выбрать файл базы, он сохранится и уйдёт на сервер"
         android:dependency="checkbox_assistant_enabled" />
+
+    <com.limelight.preferences.MapFolderPreference
+        android:key="assistant_map_folder"
+        android:title="Карта для оверлея (папка)"
+        android:summary="Тап - выбрать папку с картой: tsushima_map_data.json + картинка"
+        android:dependency="checkbox_assistant_enabled" />
 </PreferenceCategory></PreferenceScreen>

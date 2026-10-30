@@ -90,7 +90,7 @@ import java.security.cert.X509Certificate;
 import java.util.Locale;
 
 
-public class Game extends Activity implements AssistantCaptureManager.OverlayCallback, AssistantCaptureManager.ArrowCallback, SurfaceHolder.Callback,
+public class Game extends Activity implements AssistantCaptureManager.OverlayCallback, AssistantCaptureManager.ArrowCallback, AssistantCaptureManager.MapCallback, SurfaceHolder.Callback,
         OnGenericMotionListener, OnTouchListener, NvConnectionListener, EvdevListener,
         OnSystemUiVisibilityChangeListener, GameGestures, StreamView.InputCallbacks,
         PerfOverlayListener, UsbDriverService.UsbDriverStateListener, View.OnKeyListener {
@@ -169,6 +169,12 @@ public class Game extends Activity implements AssistantCaptureManager.OverlayCal
         }
     }
 
+    public void showAssistantMap(float mapX, float mapY, String label, int ttlMs) {
+        if (assistantOverlayView != null) {
+            assistantOverlayView.showMap(this, mapX, mapY, label, ttlMs);
+        }
+    }
+
     @Override
     public void onOverlay(float x, float y, float w, float h, String label, int ttl) {
         showAssistantOverlay(x, y, w, h, label, ttl);
@@ -177,6 +183,11 @@ public class Game extends Activity implements AssistantCaptureManager.OverlayCal
     @Override
     public void onArrow(float angleDeg, String label, int ttl) {
         showAssistantArrow(angleDeg, label, ttl);
+    }
+
+    @Override
+    public void onMap(float mapX, float mapY, String label, int ttl) {
+        showAssistantMap(mapX, mapY, label, ttl);
     }
 
     private MediaCodecDecoderRenderer decoderRenderer;

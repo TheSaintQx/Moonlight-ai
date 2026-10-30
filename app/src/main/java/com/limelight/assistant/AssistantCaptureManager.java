@@ -39,6 +39,9 @@ public class AssistantCaptureManager {
     public interface ArrowCallback {
         void onArrow(float angleDeg, String label, int ttl);
     }
+    public interface MapCallback {
+        void onMap(float x, float y, String label, int ttl);
+    }
     private static final String TAG = "AssistantCapture";
     private static final int CONNECT_TIMEOUT_MS = 5000;
     private static final int READ_TIMEOUT_MS = 15000;
@@ -295,6 +298,13 @@ public class AssistantCaptureManager {
                         if (overlayCallback instanceof ArrowCallback) {
                             ((ArrowCallback) overlayCallback).onArrow(
                                     (float) ov.optDouble("direction", 0.0), label, ttl);
+                        }
+                    } else if ("map".equals(mode)) {
+                        if (overlayCallback instanceof MapCallback) {
+                            ((MapCallback) overlayCallback).onMap(
+                                    (float) ov.optDouble("x", 0.5),
+                                    (float) ov.optDouble("y", 0.5),
+                                    label, ttl);
                         }
                     } else {
                         overlayCallback.onOverlay(
