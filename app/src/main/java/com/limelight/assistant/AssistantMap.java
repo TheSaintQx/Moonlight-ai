@@ -20,6 +20,8 @@ import android.util.Log;
 
 import org.json.JSONObject;
 
+import androidx.documentfile.provider.DocumentFile;
+
 import java.io.InputStream;
 
 public final class AssistantMap {
@@ -71,13 +73,20 @@ public final class AssistantMap {
         setStatus(context, "папка: " + name + " — " + check);
     }
 
-    /** @return человекочитаемый статус: сколько точек/какая картинка найдены. */
+    /** Проверяем, что в папке есть карта. @return человекочитаемый статус. */
     public static String inspectFolder(Context context, Uri folderUri) {
         try {
-            Uri jsonUri = Uri.withAppendedPath(folderUri, "tsushima_map_data.json");
-            JSONObject data = readJson(context, jsonUri);
+            DocumentFile folder = DocumentFile.fromTreeUri(context, folderUri);
+            if (folder == null) {
+                return "не удалось открыть папку";
+            }
+            DocumentFile jsonFile = folder.findFile("tsushima_map_data.json");
+            if (jsonFile == null || !jsonFile.exists()) {
+                return "tsushima_map_data.json не найден в папке";
+            }
+            JSONObject data = readJson(context, jsonFile.getUri());
             if (data == null) {
-                return "tsushima_map_data.json не найден";
+                return "JSON повреждён или пуст";
             }
             int n = data.optJSONArray("points") != null
                     ? data.optJSONArray("points").length() : 0;
@@ -93,6 +102,15 @@ public final class AssistantMap {
         String uriStr = prefs(context).getString(KEY_FOLDER_URI, "");
         if (uriStr.isEmpty()) return null;
         Uri folderUri = Uri.parse(uriStr);
+        // Сначала пробуем DocumentFile (правильный tree-доступ)
+        DocumentFile folder = DocumentFile.fromTreeUri(context, folderUri);
+        if (folder != null) {
+            DocumentFile jsonFile = folder.findFile("tsushima_map_data.json");
+            if (jsonFile != null && jsonFile.exists()) {
+                return readJson(context, jsonFile.getUri());
+            }
+        }
+        // Fallback: прямой URI append
         Uri jsonUri = Uri.withAppendedPath(folderUri, "tsushima_map_data.json");
         return readJson(context, jsonUri);
     }

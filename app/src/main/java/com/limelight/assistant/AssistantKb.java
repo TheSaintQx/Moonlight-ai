@@ -125,8 +125,8 @@ public final class AssistantKb {
             byte[] payload = text.getBytes(StandardCharsets.UTF_8);
             conn = (HttpURLConnection) new URL(s.url + KB_PATH).openConnection();
             conn.setRequestMethod("POST");
-            conn.setConnectTimeout(5000);
-            conn.setReadTimeout(20000);
+            conn.setConnectTimeout(15000);
+            conn.setReadTimeout(60000);
             conn.setDoOutput(true);
             conn.setRequestProperty("Authorization", "Bearer " + s.token);
             conn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
